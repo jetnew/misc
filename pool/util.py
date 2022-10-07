@@ -20,8 +20,8 @@ def screenshot(x1=None, y1=None, x2=None, y2=None):
     return cv2.cvtColor(np.array(screen), cv2.COLOR_BGR2RGB)
 
 def edges(screen: np.array):
-    threshold1 = 120
-    threshold2 = 200
+    threshold1 = 100
+    threshold2 = 180
     apertureSize = 1
     return cv2.Canny(screen, threshold1, threshold2, apertureSize)
 

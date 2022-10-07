@@ -12,22 +12,13 @@ Left half of screen, 80%
 
 
 # while True:
-#     print(mouse())
+    # print(mouse())
 
 GAME_X1, GAME_Y1, GAME_X2, GAME_Y2 = 100//2, 450//2, 1600//2, 1440//2
 
-def rect_height_correct(box, low, high):
-    return low < euclidean(box[0], box[1]) < high or \
-           low < euclidean(box[0], box[3]) < high
-
-def rect_in_area(box, x1=275-GAME_X1, y1=745-GAME_Y1, x2=1450-GAME_X1, y2=1380-GAME_Y1):
-    for point in box:
-        x, y = point
-        if x1 > x or x > x2:
-            return False
-        if y1 > y or y > y2:
-            return False
-    return True
+def rect_height_correct(box, high):
+    return euclidean(box[0], box[1]) < high or \
+           euclidean(box[0], box[3]) < high
 
 def extend_line(box, length=500):
     pt1, pt2, pt3, pt4 = box
@@ -70,19 +61,16 @@ def extend_line(box, length=500):
 
 def guideline(cont):
     boxes = []
-    n = 0
     for c in cont:
         rect = cv2.minAreaRect(c)
-        box = np.int0(cv2.boxPoints(rect))
-        if rect_height_correct(box, 1, 5) and rect_in_area(box):
+        box = np.rint(cv2.boxPoints(rect))
+        if rect_height_correct(box, 5):
             boxes.append(box)
-            n += 1
-    boxes = [extend_line(box, length=1000) for box in boxes]
     return boxes
 
 def draw_guideline(screen, boxes):
     for box in boxes:
-        cv2.drawContours(screen, [box], 0, (0,0,255), 2)
+        cv2.drawContours(screen, [box], 0, (0,0,255), 1)
 
 
 import time
@@ -101,9 +89,16 @@ while True:
     edge = edges(screen)
     cont = contours(edge)
     cont = [c for c in cont if cv2.contourArea(c) > 30]
+
     guidelines = guideline(cont)
+    guidelines = [extend_line(line, length=1000) for line in guidelines]
+
+    edge = cv2.cvtColor(edge, cv2.COLOR_GRAY2RGB)
     draw_guideline(screen, guidelines)
 
+    # cv2.drawContours(edge, cont, -1, (0,255,0), 1)
+
+    # cv2.imshow("edge", edge)
     cv2.imshow("screen", screen)
     # print("Imshow:", time.time() - now)
 
