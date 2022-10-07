@@ -72,6 +72,15 @@ def draw_guideline(screen, boxes):
     for box in boxes:
         cv2.drawContours(screen, [box], 0, (0,0,255), 1)
 
+def box_center(boxes):
+    centers = []
+    for box in boxes:
+        y = box[2][1] - (box[2][1] - box[0][1]) // 2
+        x = box[2][0] - (box[2][0] - box[0][0]) // 2
+        centers.append((int(y), int(x)))
+    return centers
+
+
 
 import time
 from PIL import ImageGrab
@@ -83,7 +92,7 @@ while True:
     # screen = ImageGrab.grab(bbox=(GAME_X1, GAME_Y1, GAME_X2, GAME_Y2))
     screen = sct.grab((GAME_X1, GAME_Y1, GAME_X2, GAME_Y2))
     screen = np.array(screen)
-    # screen = cv2.cvtColor(np.array(screen), cv2.COLOR_BGR2RGB)
+    rgb = cv2.cvtColor(np.array(screen), cv2.COLOR_BGR2RGB)
 
 
     edge = edges(screen)
@@ -91,6 +100,11 @@ while True:
     cont = [c for c in cont if cv2.contourArea(c) > 30]
 
     guidelines = guideline(cont)
+    centers = box_center(guidelines)
+    colors = [rgb[center] for center in centers]
+    idx = [i for i, c in enumerate(colors) if sum(c) > 255*3 - 10]
+
+    guidelines = [line for i, line in enumerate(guidelines) if i in idx]
     guidelines = [extend_line(line, length=1000) for line in guidelines]
 
     edge = cv2.cvtColor(edge, cv2.COLOR_GRAY2RGB)
