@@ -22,7 +22,7 @@ def screenshot(x1=None, y1=None, x2=None, y2=None):
 def edges(screen: np.array):
     threshold1 = 100
     threshold2 = 180
-    apertureSize = 1
+    apertureSize = 3
     return cv2.Canny(screen, threshold1, threshold2, apertureSize)
 
 def display(screen):
